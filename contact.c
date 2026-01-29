@@ -181,6 +181,115 @@ int findIndex(AddressBook *addressBook)
     return foundIndex;
 }
 
+void searchContact(AddressBook *addressBook) 
+{
+
+    int foundIndex = findIndex(addressBook);
+
+    if (foundIndex != -1)
+    {
+        printf("\nContact Found:\n");
+        printf("Name:  %s\n", addressBook->contacts[foundIndex].name);
+        printf("Phone: %s\n", addressBook->contacts[foundIndex].phone);
+        printf("Email: %s\n", addressBook->contacts[foundIndex].email);
+    }
+    else
+    {
+        printf("\nNo contacts found with that detail.\n");
+    }
+
+}
+
+void editContact(AddressBook *addressBook)
+{
+    int foundIndex = findIndex(addressBook);
+
+    //  STEP 2: EDIT THE CONTACT 
+    if (foundIndex != -1)
+    {
+       
+        printf("\nContact Found:\n");
+        printf("Name:  %s\n", addressBook->contacts[foundIndex].name);
+        printf("Phone: %s\n", addressBook->contacts[foundIndex].phone);
+        printf("Email: %s\n", addressBook->contacts[foundIndex].email);
+
+        
+        printf("\nWhat do you want to edit?\n");
+        printf("1. Name\n");
+        printf("2. Phone\n");
+        printf("3. Email\n");
+        printf("Enter your choice: ");
+        int editOption;
+        scanf("%d", &editOption);
+
+        // Perform the update
+        switch (editOption)
+        {
+        case 1:
+            printf("Enter new Name: ");
+            scanf(" %[^\n]", addressBook->contacts[foundIndex].name);
+            break;
+        case 2:
+            printf("Enter new Phone: ");
+            scanf(" %[^\n]", addressBook->contacts[foundIndex].phone);
+            break;
+        case 3:
+            printf("Enter new Email: ");
+            scanf(" %[^\n]", addressBook->contacts[foundIndex].email);
+            break;
+        default:
+            printf("Invalid option. No changes made.\n");
+            return;
+        }
+
+        printf("Contact updated successfully!\n");
+    }
+    else
+    {
+        printf("Contact not found.\n");
+    }
+}
+
+void deleteContact(AddressBook *addressBook)
+{
+    int foundIndex = findIndex(addressBook);
+    
+	if (foundIndex != -1)
+    {
+        printf("\nContact Found:\n");
+        printf("Name:  %s\n", addressBook->contacts[foundIndex].name);
+        printf("Phone: %s\n", addressBook->contacts[foundIndex].phone);
+        printf("Email: %s\n", addressBook->contacts[foundIndex].email);
+        
+        printf("Are you sure you want to delete? \n(1 for Yes / 0 for No): ");
+        int confirm;
+        scanf("%d", &confirm);
+
+        if (confirm == 1)
+        {
+            // The Shifting Logic
+            
+            for (int i = foundIndex; i < addressBook->contactCount - 1; i++)
+            {
+                addressBook->contacts[i] = addressBook->contacts[i + 1];
+            }
+
+            // Decrease the total count
+            addressBook->contactCount--;
+            printf("Contact deleted successfully.\n");
+        }
+        else
+        {
+            printf("Deletion cancelled.\n");
+        }
+    }
+    else
+    {
+        printf("Contact not found.\n");
+    }
+   
+}
+
 // Helper: Sort by Name 
 void sort_by_name(AddressBook *addressBook) 
 {
