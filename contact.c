@@ -79,31 +79,84 @@ void listContacts(AddressBook *addressBook)
 
 void createContact(AddressBook *addressBook)
 {
-	/* Define the logic to create a Contacts */
-    if(addressBook->contactCount >= MAX_CONTACTS)
-    {
-        printf("Maximum Contact limit reached");
+    if(addressBook->contactCount >= MAX_CONTACTS) {
+        printf("Error: Maximum Contact limit reached\n");
         return;
     }
 
     Contact new_contact;
-    printf("Enter Name:");
-    scanf(" %[^\n]",new_contact.name);
-    printf("Enter Phone Number:");
-    scanf(" %[^\n]",new_contact.phone);
-    printf("Enter Email ID:");
-    scanf(" %[^\n]",new_contact.email);
 
+    // 1. Name Check
+    printf("Enter Name: ");
+    scanf(" %[^\n]", new_contact.name);
+    if (findIndex(addressBook, 1, new_contact.name) != -1) {
+        printf("Error: Name already exists!\n");
+        return; 
+    }
+
+    // 2. Phone Check (with your 10-digit requirement)
+    printf("Enter Phone Number: ");
+    scanf(" %[^\n]", new_contact.phone);
+    if (strlen(new_contact.phone) != 10) {
+        printf("Error: Phone must be 10 digits!\n");
+        return;
+    }
+    if (findIndex(addressBook, 2, new_contact.phone) != -1) {
+        printf("Error: Phone number already exists!\n");
+        return;
+    }
+
+    // 3. Email Check (with @ and . requirement)
+    printf("Enter Email ID: ");
+    scanf(" %[^\n]", new_contact.email);
+    if (strstr(new_contact.email, "@") == NULL || strstr(new_contact.email, ".") == NULL) {
+        printf("Error: Invalid Email format!\n");
+        return;
+    }
+    if (findIndex(addressBook, 3, new_contact.email) != -1) {
+        printf("Error: Email already exists!\n");
+        return;
+    }
+
+    // Save
     addressBook->contacts[addressBook->contactCount] = new_contact;
     addressBook->contactCount++;
-    
     printf("\nContact saved successfully!\n");
 }
 
-int findIndex(AddressBook *addressBook)
+int findIndex(AddressBook *addressBook, int choice, const char *searchKey)
+{
+    int foundIndex = -1;
+
+    for (int i = 0; i < addressBook->contactCount; i++)
+    {
+        switch (choice)
+        {
+            case 1: // Name
+                if (strcasecmp(addressBook->contacts[i].name, searchKey) == 0)
+                    foundIndex = i;
+                break;
+            case 2: // Phone
+                if (strcmp(addressBook->contacts[i].phone, searchKey) == 0)
+                    foundIndex = i;
+                break;
+            case 3: // Email
+                if (strcasecmp(addressBook->contacts[i].email, searchKey) == 0)
+                    foundIndex = i;
+                break;
+        }
+        if (foundIndex != -1) break; // Exit loop if found
+    }
+    return foundIndex;
+}
+
+void searchContact(AddressBook *addressBook) 
 {
     int choice;
-    int validInput;
+    int validInput = 0;
+    char searchKey[50];
+
+    // 1. Get the user's search preference
     do {
         printf("\nSearch By:\n");
         printf("1. Name\n");
@@ -111,82 +164,25 @@ int findIndex(AddressBook *addressBook)
         printf("3. Email\n");
         printf("Enter your choice: ");
 
-        // Check if scanf successfully read an integer
-        if (scanf("%d", &choice) == 1) 
-        {
-            if (choice >= 1 && choice <= 3) 
-            {
-                validInput = 1; // Valid input, exit loop
-            } 
-            else 
-            {
-                printf("Invalid choice. Please enter 1, 2, or 3.\n");
-            }
-        } 
-        else 
-        {
-            // Input was not a number (e.g., 'a'), clear the buffer
-            printf("Invalid input. Please enter a number.\n");
-            while (getchar() != '\n'); // Clear input buffer
+        if (scanf("%d", &choice) == 1 && choice >= 1 && choice <= 3) {
+            validInput = 1;
+        } else {
+            printf("Invalid choice. Please enter 1, 2, or 3.\n");
+            while (getchar() != '\n'); // Clear buffer
         }
-
     } while (!validInput);
 
-
-
-    char searchKey[50];
-    int foundIndex = -1; // -1 means haven't found anyone yet
-
-    
-    switch (choice)
-    {
-    case 1:
-        printf("Enter the Name: ");
-        scanf(" %[^\n]", searchKey);
-        for (int i = 0; i < addressBook->contactCount; i++)
-        {
-            if (strcasecmp(addressBook->contacts[i].name, searchKey) == 0)
-            {
-                foundIndex = i;
-                break; 
-            }
-        }
-        break;
-
-    case 2:
-        printf("Enter the Phone: ");
-        scanf(" %[^\n]", searchKey);
-        for (int i = 0; i < addressBook->contactCount; i++)
-        {
-            if (strcmp(addressBook->contacts[i].phone, searchKey) == 0)
-            {
-                foundIndex = i;
-                break;
-            }
-        }
-        break;
-
-    case 3:
-        printf("Enter the Email: ");
-        scanf(" %[^\n]", searchKey);
-        for (int i = 0; i < addressBook->contactCount; i++)
-        {
-            if (strcmp(addressBook->contacts[i].email, searchKey) == 0)
-            {
-                foundIndex = i;
-                break;
-            }
-        }
-        break;
+    // 2. Get the search string based on choice
+    switch (choice) {
+        case 1: printf("Enter the Name: "); break;
+        case 2: printf("Enter the Phone: "); break;
+        case 3: printf("Enter the Email: "); break;
     }
-    return foundIndex;
-}
+    scanf(" %[^\n]", searchKey);
 
-void searchContact(AddressBook *addressBook) 
-{
-
-    int foundIndex = findIndex(addressBook);
-
+    // 3. Call the modified findIndex with the inputs
+    int foundIndex = findIndex(addressBook, choice, searchKey);
+   
     if (foundIndex != -1)
     {
         printf("\nContact Found:\n");
@@ -203,9 +199,37 @@ void searchContact(AddressBook *addressBook)
 
 void editContact(AddressBook *addressBook)
 {
-    int foundIndex = findIndex(addressBook);
+    int choice;
+    int validInput = 0;
+    char searchKey[50];
 
-    //  STEP 2: EDIT THE CONTACT 
+    // 1. Get the user's search preference
+    do {
+        printf("\nSearch By:\n");
+        printf("1. Name\n");
+        printf("2. Phone\n");
+        printf("3. Email\n");
+        printf("Enter your choice: ");
+
+        if (scanf("%d", &choice) == 1 && choice >= 1 && choice <= 3) {
+            validInput = 1;
+        } else {
+            printf("Invalid choice. Please enter 1, 2, or 3.\n");
+            while (getchar() != '\n'); // Clear buffer
+        }
+    } while (!validInput);
+
+    // 2. Get the search string based on choice
+    switch (choice) {
+        case 1: printf("Enter the Name: "); break;
+        case 2: printf("Enter the Phone: "); break;
+        case 3: printf("Enter the Email: "); break;
+    }
+    scanf(" %[^\n]", searchKey);
+
+    // 3. Call the modified findIndex with the inputs
+    int foundIndex = findIndex(addressBook, choice, searchKey);
+
     if (foundIndex != -1)
     {
        
@@ -253,7 +277,36 @@ void editContact(AddressBook *addressBook)
 
 void deleteContact(AddressBook *addressBook)
 {
-    int foundIndex = findIndex(addressBook);
+    int choice;
+    int validInput = 0;
+    char searchKey[50];
+
+    // 1. Get the user's search preference
+    do {
+        printf("\nSearch By:\n");
+        printf("1. Name\n");
+        printf("2. Phone\n");
+        printf("3. Email\n");
+        printf("Enter your choice: ");
+
+        if (scanf("%d", &choice) == 1 && choice >= 1 && choice <= 3) {
+            validInput = 1;
+        } else {
+            printf("Invalid choice. Please enter 1, 2, or 3.\n");
+            while (getchar() != '\n'); // Clear buffer
+        }
+    } while (!validInput);
+
+    // 2. Get the search string based on choice
+    switch (choice) {
+        case 1: printf("Enter the Name: "); break;
+        case 2: printf("Enter the Phone: "); break;
+        case 3: printf("Enter the Email: "); break;
+    }
+    scanf(" %[^\n]", searchKey);
+
+    // 3. Call the modified findIndex with the inputs
+    int foundIndex = findIndex(addressBook, choice, searchKey);
     
 	if (foundIndex != -1)
     {

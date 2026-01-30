@@ -19,7 +19,7 @@ void searchContact(AddressBook *addressBook);
 void editContact(AddressBook *addressBook);
 void deleteContact(AddressBook *addressBook);
 void listContacts(AddressBook *addressBook);
-int findIndex(AddressBook *addressBook);
+int findIndex(AddressBook *addressBook, int choice, const char *searchKey);
 void sort_by_name(AddressBook *AddressBook);
 void sort_by_number(AddressBook *AddressBook);
 void sort_by_email(AddressBook *AddressBook);
