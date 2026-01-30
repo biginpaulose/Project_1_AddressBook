@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include "contact.h"
 #include "file.h"
 
@@ -144,7 +145,7 @@ int findIndex(AddressBook *addressBook)
         scanf(" %[^\n]", searchKey);
         for (int i = 0; i < addressBook->contactCount; i++)
         {
-            if (strcmp(addressBook->contacts[i].name, searchKey) == 0)
+            if (strcasecmp(addressBook->contacts[i].name, searchKey) == 0)
             {
                 foundIndex = i;
                 break; 
