@@ -44,6 +44,8 @@ int main() {
             case 7:
                 loadContactsFromFile(&addressBook);
                 break;
+            case 8:
+                break;
             default:
                 printf("Invalid choice. Please try again.\n");
         }
